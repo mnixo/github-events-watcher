@@ -1,0 +1,9 @@
+{
+  "name": "github-events-watcher",
+  "version": "1.0.0",
+  "main": "index.js",
+  "flat": true,
+  "repository": "https://github.com/mnixo/github-events-watcher",
+  "author": "Miguel Nixo <mnixo@nuxeo.com>",
+  "license": "MIT"
+}
