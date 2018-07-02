@@ -5,5 +5,12 @@
   "flat": true,
   "repository": "https://github.com/mnixo/github-events-watcher",
   "author": "Miguel Nixo <mnixo@nuxeo.com>",
-  "license": "MIT"
+  "license": "MIT",
+  "dependencies": {
+    "@polymer/lit-element": "^0.5.2",
+    "@polymer/paper-button": "^3.0.0-pre.21"
+  },
+  "devDependencies": {
+    "@webcomponents/webcomponentsjs": "^2.0.0"
+  }
 }
