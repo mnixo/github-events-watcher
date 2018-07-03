@@ -6,6 +6,10 @@
     "!node_modules/@webcomponents/webcomponentsjs/gulpfile.js",
     "node_modules/@webcomponents/webcomponentsjs/bundles/*.js"
   ],
+  "sources": [
+    "service-worker.html",
+    "service-worker.js"
+  ],
   "autoBasePath": true,
   "builds": [
     {
