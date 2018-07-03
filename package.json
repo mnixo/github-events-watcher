@@ -6,11 +6,17 @@
   "repository": "https://github.com/mnixo/github-events-watcher",
   "author": "Miguel Nixo <mnixo@nuxeo.com>",
   "license": "MIT",
+  "scripts": {
+    "start": "./node_modules/polymer-cli/bin/polymer.js serve",
+    "lint": "./node_modules/polymer-cli/bin/polymer.js lint -i src",
+    "build": "./node_modules/polymer-cli/bin/polymer.js build"
+  },
   "dependencies": {
     "@polymer/lit-element": "^0.5.2",
     "@polymer/paper-button": "^3.0.0-pre.21"
   },
   "devDependencies": {
-    "@webcomponents/webcomponentsjs": "^2.0.0"
+    "@webcomponents/webcomponentsjs": "^2.0.0",
+    "polymer-cli": "^1.7.7"
   }
 }
