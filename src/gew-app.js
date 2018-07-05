@@ -7,6 +7,7 @@ import '@polymer/paper-styles/paper-styles';
 class GEWApp extends LitElement {
   static get properties() {
     return {
+      _auth: String,
       _rateLimit: Object,
       _organization: Object,
       _organizationEvents: Object,
@@ -15,6 +16,7 @@ class GEWApp extends LitElement {
 
   constructor() {
     super();
+    this._auth = null;
     this._rateLimit = {};
     this._organization = {};
     this._organizationEvents = {};
@@ -34,6 +36,7 @@ class GEWApp extends LitElement {
         paper-button {
           margin: 0;
           width: 100%;
+          text-transform: none;
         }
         .console {
           white-space: pre-wrap;
@@ -49,32 +52,61 @@ class GEWApp extends LitElement {
         <h3>GitHub Events Watcher</h3>
       </paper-card>
       <paper-card>
+        <paper-input id="inputOrganization" label="Organization" value="nuxeo"></paper-input>
+      </paper-card>
+      <paper-card>
+        <paper-input id="inputUsername" label="Username"></paper-input>
+        <paper-input id="inputPassword" label="Password" type="password"></paper-input>
+        <paper-button raised on-click="${() => this._onAuthenticateBasic()}">Use Basic Authentication</paper-button>
+      </paper-card>
+      <paper-card>
+        <paper-input id="inputToken" label="Token"></paper-input>
+        <paper-button raised on-click="${() => this._onAuthenticateToken()}">Use Token Authentication</paper-button>
+      </paper-card>
+      <paper-card>
         <div class="console">${JSON.stringify(_rateLimit, null, 2)}</div>
         <paper-button raised on-click="${() => this._onGetRateLimit()}">Get Rate Limit</paper-button>
       </paper-card>
       <paper-card>
-        <paper-input id="inputOrganization" label="Organization" value="nuxeo"></paper-input>
         <div class="console">${JSON.stringify(_organization, null, 2)}</div>
         <paper-button raised on-click="${() => this._onGetOrganization()}">Get Organization</paper-button>
       </paper-card>
       <paper-card>
-        <paper-input id="inputOrganizationEvents" label="Organization" value="nuxeo"></paper-input>
         <div class="console">${JSON.stringify(_organizationEvents, null, 2)}</div>
         <paper-button raised on-click="${() => this._onGetOrganizationEvents()}">Get Organization Events</paper-button>
       </paper-card>
     `;
   }
 
+  _getOrganization() {
+    return this.shadowRoot.getElementById('inputOrganization').value;
+  }
+
   _httpGet(url, callback) {
-    const xhttp = new XMLHttpRequest();
-    xhttp.open('GET', url, true);
-    xhttp.setRequestHeader('Content-type', 'application/json');
-    xhttp.onreadystatechange = () => {
-      if (xhttp.readyState === 4 && xhttp.status === 200) {
-        callback(xhttp);
+    const req = new XMLHttpRequest();
+    req.open('GET', url, true);
+    req.setRequestHeader('Content-type', 'application/json');
+    if (this._auth) {
+      req.setRequestHeader('Authorization', this._auth);
+    }
+    req.onreadystatechange = () => {
+      if (req.readyState === 4 && req.status === 200) {
+        callback(req);
       }
     };
-    xhttp.send();
+    req.send();
+  }
+
+  _onAuthenticateBasic() {
+    const username = this.shadowRoot.getElementById('inputUsername').value;
+    const password = this.shadowRoot.getElementById('inputPassword').value;
+    const secret = btoa(`${username}:${password}`);
+    this._auth = `Basic ${secret}`;
+  }
+
+  _onAuthenticateToken() {
+    const token = this.shadowRoot.getElementById('inputToken').value;
+    this._auth = `token ${token}`;
   }
 
   _onGetRateLimit() {
@@ -84,15 +116,13 @@ class GEWApp extends LitElement {
   }
 
   _onGetOrganization() {
-    const organization = this.shadowRoot.getElementById('inputOrganization').value;
-    this._httpGet(`https://api.github.com/orgs/${organization}`, req => {
+    this._httpGet(`https://api.github.com/orgs/${this._getOrganization()}`, req => {
       this._organization = JSON.parse(req.responseText);
     });
   }
 
   _onGetOrganizationEvents() {
-    const organization = this.shadowRoot.getElementById('inputOrganizationEvents').value;
-    this._httpGet(`https://api.github.com/orgs/${organization}/events`, req => {
+    this._httpGet(`https://api.github.com/orgs/${this._getOrganization()}/events`, req => {
       this._organizationEvents = JSON.parse(req.responseText);
     });
   }
