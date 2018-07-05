@@ -8,6 +8,7 @@ class GEWApp extends LitElement {
   static get properties() {
     return {
       _auth: String,
+      _user: Object,
       _rateLimit: Object,
       _organization: Object,
       _organizationEvents: Object,
@@ -17,12 +18,13 @@ class GEWApp extends LitElement {
   constructor() {
     super();
     this._auth = null;
+    this._user = {};
     this._rateLimit = {};
     this._organization = {};
     this._organizationEvents = {};
   }
 
-  _render({ _rateLimit, _organization, _organizationEvents }) {
+  _render({ _user, _rateLimit, _organization, _organizationEvents }) {
     return html`
       <style>
         :host {
@@ -52,9 +54,6 @@ class GEWApp extends LitElement {
         <h3>GitHub Events Watcher</h3>
       </paper-card>
       <paper-card>
-        <paper-input id="inputOrganization" label="Organization" value="nuxeo"></paper-input>
-      </paper-card>
-      <paper-card>
         <paper-input id="inputUsername" label="Username"></paper-input>
         <paper-input id="inputPassword" label="Password" type="password"></paper-input>
         <paper-button raised on-click="${() => this._onAuthenticateBasic()}">Use Basic Authentication</paper-button>
@@ -64,8 +63,15 @@ class GEWApp extends LitElement {
         <paper-button raised on-click="${() => this._onAuthenticateToken()}">Use Token Authentication</paper-button>
       </paper-card>
       <paper-card>
+        <div class="console">${JSON.stringify(_user, null, 2)}</div>
+        <paper-button raised on-click="${() => this._onGetUser()}">Get User</paper-button>
+      </paper-card>
+      <paper-card>
         <div class="console">${JSON.stringify(_rateLimit, null, 2)}</div>
         <paper-button raised on-click="${() => this._onGetRateLimit()}">Get Rate Limit</paper-button>
+      </paper-card>
+      <paper-card>
+        <paper-input id="inputOrganization" label="Organization" value="nuxeo"></paper-input>
       </paper-card>
       <paper-card>
         <div class="console">${JSON.stringify(_organization, null, 2)}</div>
@@ -107,6 +113,12 @@ class GEWApp extends LitElement {
   _onAuthenticateToken() {
     const token = this.shadowRoot.getElementById('inputToken').value;
     this._auth = `token ${token}`;
+  }
+
+  _onGetUser() {
+    this._httpGet('https://api.github.com/user', req => {
+      this._user = JSON.parse(req.responseText);
+    });
   }
 
   _onGetRateLimit() {
