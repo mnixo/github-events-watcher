@@ -7,16 +7,20 @@ import '@polymer/paper-spinner/paper-spinner';
 class GEWAuthenticator extends LitElement {
   static get properties() {
     return {
-      _auth: String,
+      _authenticated: Boolean,
+      _secret: String,
+      _user: String,
     };
   }
 
   constructor() {
     super();
-    this._auth = null;
+    this._authenticated = false;
+    this._secret = null;
+    this._user = null;
   }
 
-  _render(props) {
+  _render({ _authenticated, _user }) {
     return html`
       <style>
         :host {
@@ -49,6 +53,18 @@ class GEWAuthenticator extends LitElement {
         }
         paper-spinner {
           align-self: center;
+        }
+        .authenticated {
+          background-color: var(--google-green-100);
+        }
+        .authenticated:hover {
+          background-color: var(--google-red-100);
+        }
+        .not-authenticated {
+          background-color: #fff;
+        }
+        .not-authenticated:hover {
+          background-color: var(--google-green-100);
         }
       </style>
       
@@ -96,8 +112,27 @@ class GEWAuthenticator extends LitElement {
         <div id="errorContent" class="dialog-content"></div>
       </paper-dialog>
        
-      <paper-button raised on-click="${() => this._openDialog('basic')}">Authenticator</paper-buttonraised>
+      <paper-button raised on-click="${() => this._onButtonClick()}" class$="${this._getButtonClass(_authenticated)}">
+        ${this._getButtonLabel(_user)}
+      </paper-buttonraised>
     `;
+  }
+
+  _getButtonClass(authenticated) {
+    return authenticated ? 'authenticated' : 'not-authenticated';
+  }
+
+  _getButtonLabel(user) {
+    return user ? user : 'Authenticate';
+  }
+
+  _onButtonClick() {
+    if (this._authenticated) {
+      this._authenticated = false;
+      this._user = null;
+    } else {
+      this._openDialog('basic');
+    }
   }
 
   _openDialog(id) {
@@ -114,28 +149,32 @@ class GEWAuthenticator extends LitElement {
     const username = this.shadowRoot.getElementById('inputUsername').value;
     const password = this.shadowRoot.getElementById('inputPassword').value;
     const secret = btoa(`${username}:${password}`);
-    this._auth = `Basic ${secret}`;
+    this._secret = `Basic ${secret}`;
     this._testAuth();
   }
 
   _onTokenConfirm() {
     const token = this.shadowRoot.getElementById('inputToken').value;
-    this._auth = `token ${token}`;
+    this._secret = `token ${token}`;
     this._testAuth();
   }
 
   _testAuth() {
     this._openDialog('progress');
-    const onSuccess = () => {
+    const onSuccess = req => {
       this.shadowRoot.getElementById('progress').close();
+      this._authenticated = true;
+      this._user = JSON.parse(req.response).login;
     };
     const onError = req => {
       this.shadowRoot.getElementById('progress').close();
       const message = `${req.statusText} (${req.status})\n${JSON.parse(req.response).message}`;
       this.shadowRoot.getElementById('errorContent').innerText = message;
       this._openDialog('error');
+      this._authenticated = false;
+      this._user = null;
     };
-    this._httpGet('https://api.github.com/user', this._auth, onSuccess, onError);
+    this._httpGet('https://api.github.com/user', this._secret, onSuccess, onError);
   }
 
   _httpGet(url, auth, onSuccess, onError) {
