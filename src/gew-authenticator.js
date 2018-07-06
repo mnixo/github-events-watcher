@@ -1,13 +1,15 @@
+import '@polymer/iron-icon/iron-icon';
+import '@polymer/iron-icons/iron-icons';
 import { LitElement, html } from '@polymer/lit-element';
 import '@polymer/paper-button/paper-button';
 import '@polymer/paper-dialog/paper-dialog';
 import '@polymer/paper-input/paper-input';
 import '@polymer/paper-spinner/paper-spinner';
+import '@polymer/paper-tooltip/paper-tooltip';
 
 class GEWAuthenticator extends LitElement {
   static get properties() {
     return {
-      _authenticated: Boolean,
       _secret: String,
       _user: String,
     };
@@ -15,12 +17,11 @@ class GEWAuthenticator extends LitElement {
 
   constructor() {
     super();
-    this._authenticated = false;
     this._secret = null;
     this._user = null;
   }
 
-  _render({ _authenticated, _user }) {
+  _render({ _user }) {
     return html`
       <style>
         :host {
@@ -112,23 +113,27 @@ class GEWAuthenticator extends LitElement {
         <div id="errorContent" class="dialog-content"></div>
       </paper-dialog>
        
-      <paper-button raised on-click="${() => this._onButtonClick()}" class$="${this._getButtonClass(_authenticated)}">
-        ${this._getButtonLabel(_user)}
+      <paper-tooltip animation-delay="0">${this._getButtonTooltip(_user)}</paper-tooltip>
+      <paper-button raised on-click="${() => this._onButtonClick()}" class$="${this._getButtonClass(_user)}">
+        <iron-icon icon="account-circle"></iron-icon>
       </paper-buttonraised>
     `;
   }
 
-  _getButtonClass(authenticated) {
-    return authenticated ? 'authenticated' : 'not-authenticated';
+  _getButtonClass(user) {
+    return user ? 'authenticated' : 'not-authenticated';
   }
 
   _getButtonLabel(user) {
     return user ? user : 'Authenticate';
   }
 
+  _getButtonTooltip(user) {
+    return user ? `Authenticated as ${user}. Click to logout.` : 'Authenticate with a GitHub account.';
+  }
+
   _onButtonClick() {
-    if (this._authenticated) {
-      this._authenticated = false;
+    if (this._user) {
       this._user = null;
     } else {
       this._openDialog('basic');
@@ -163,7 +168,6 @@ class GEWAuthenticator extends LitElement {
     this._openDialog('progress');
     const onSuccess = req => {
       this.shadowRoot.getElementById('progress').close();
-      this._authenticated = true;
       this._user = JSON.parse(req.response).login;
     };
     const onError = req => {
@@ -171,7 +175,6 @@ class GEWAuthenticator extends LitElement {
       const message = `${req.statusText} (${req.status})\n${JSON.parse(req.response).message}`;
       this.shadowRoot.getElementById('errorContent').innerText = message;
       this._openDialog('error');
-      this._authenticated = false;
       this._user = null;
     };
     this._httpGet('https://api.github.com/user', this._secret, onSuccess, onError);

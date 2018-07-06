@@ -33,8 +33,25 @@ class GEWApp extends LitElement {
           flex-direction: column;
         }
         paper-card {
+          display: flex;
+          flex-direction: column;
           padding: 0.5em;
           margin-bottom: 0.5em;
+        }
+        paper-card.header {
+          flex-direction: row;
+          align-items: center;
+          justify-content: space-between;
+        }
+        .header h3 {
+          width: 100%;
+        }
+        .options {
+          display: flex;
+          align-items: center;
+        }
+        .options * {
+          margin-left: 1em;
         }
         paper-button {
           margin: 0;
@@ -51,11 +68,13 @@ class GEWApp extends LitElement {
           margin-bottom: 0.5em;
         }
       </style>
-      <paper-card>
+      <paper-card class="header">
         <h3>GitHub Events Watcher</h3>
+        <div class="options">
+          <paper-input label="Request interval" value="10"></paper-input>
+          <gew-authenticator></gew-authenticator>
+        </div>
       </paper-card>
-      
-      <gew-authenticator></gew-authenticator>
       
       <paper-card>
         <paper-input id="inputUsername" label="Username"></paper-input>
