@@ -1,165 +1,73 @@
+import '@polymer/app-layout/app-drawer/app-drawer';
+import '@polymer/app-layout/app-header/app-header';
+import '@polymer/app-layout/app-toolbar/app-toolbar';
+import '@polymer/iron-icons/iron-icons';
 import { LitElement, html } from '@polymer/lit-element';
-import '@polymer/paper-button/paper-button';
-import '@polymer/paper-card/paper-card';
+import '@polymer/paper-icon-button/paper-icon-button';
 import '@polymer/paper-input/paper-input';
 import '@polymer/paper-styles/paper-styles';
 import './gew-authenticator';
+import './gew-authenticator-dialogs';
 
 class GEWApp extends LitElement {
   static get properties() {
     return {
-      _auth: String,
-      _user: Object,
-      _rateLimit: Object,
-      _organization: Object,
-      _organizationEvents: Object,
+
     };
   }
 
   constructor() {
     super();
-    this._auth = null;
-    this._user = {};
-    this._rateLimit = {};
-    this._organization = {};
-    this._organizationEvents = {};
   }
 
-  _render({ _user, _rateLimit, _organization, _organizationEvents }) {
+  _render(props) {
     return html`
       <style>
         :host {
           display: flex;
           flex-direction: column;
         }
-        paper-card {
-          display: flex;
-          flex-direction: column;
-          padding: 0.5em;
-          margin-bottom: 0.5em;
-        }
-        paper-card.header {
-          flex-direction: row;
-          align-items: center;
-          justify-content: space-between;
-        }
-        .header h3 {
-          width: 100%;
-        }
-        .options {
-          display: flex;
-          align-items: center;
-        }
-        .options * {
-          margin-left: 1em;
-        }
-        paper-button {
-          margin: 0;
-          width: 100%;
-          text-transform: none;
-        }
-        .console {
-          white-space: pre-wrap;
-          font-family: monospace;
+        app-header {
+          font-family: var(--paper-font-common-base_-_font-family);
           background-color: #2b2b2b;
-          color: #a9b7c6;
-          border-radius: 2px;
-          padding: 0.5em;
-          margin-bottom: 0.5em;
+          color: #eee;
+        }
+        paper-progress {
+          width: 100%;
+        }
+        app-drawer {
+          --app-drawer-width: 400px;
+          --app-drawer-content-container: {
+            padding: 120px 1em 0 1em; 
+          }
         }
       </style>
-      <paper-card class="header">
-        <h3>GitHub Events Watcher</h3>
-        <div class="options">
-          <paper-input label="Request interval" value="10"></paper-input>
-          <gew-authenticator></gew-authenticator>
-        </div>
-      </paper-card>
       
-      <paper-card>
-        <paper-input id="inputUsername" label="Username"></paper-input>
-        <paper-input id="inputPassword" label="Password" type="password"></paper-input>
-        <paper-button raised on-click="${() => this._onAuthenticateBasic()}">Use Basic Authentication</paper-button>
-      </paper-card>
-      <paper-card>
-        <paper-input id="inputToken" label="Token"></paper-input>
-        <paper-button raised on-click="${() => this._onAuthenticateToken()}">Use Token Authentication</paper-button>
-      </paper-card>
-      <paper-card>
-        <div class="console">${JSON.stringify(_user, null, 2)}</div>
-        <paper-button raised on-click="${() => this._onGetUser()}">Get User</paper-button>
-      </paper-card>
-      <paper-card>
-        <div class="console">${JSON.stringify(_rateLimit, null, 2)}</div>
-        <paper-button raised on-click="${() => this._onGetRateLimit()}">Get Rate Limit</paper-button>
-      </paper-card>
-      <paper-card>
-        <paper-input id="inputOrganization" label="Organization" value="nuxeo"></paper-input>
-      </paper-card>
-      <paper-card>
-        <div class="console">${JSON.stringify(_organization, null, 2)}</div>
-        <paper-button raised on-click="${() => this._onGetOrganization()}">Get Organization</paper-button>
-      </paper-card>
-      <paper-card>
-        <div class="console">${JSON.stringify(_organizationEvents, null, 2)}</div>
-        <paper-button raised on-click="${() => this._onGetOrganizationEvents()}">Get Organization Events</paper-button>
-      </paper-card>
+      <gew-authenticator-dialogs id="authenticatorDialogs"></gew-authenticator-dialogs>
+      
+      <app-header reveals>
+        <app-toolbar>
+          <paper-icon-button icon="menu" onclick="${() => this._toggleDrawer()}"></paper-icon-button>
+          <div main-title>GitHub Events Watcher</div>
+          <gew-authenticator id="authenticator"></gew-authenticator>
+        </app-toolbar>
+      </app-header>
+      <app-drawer id="drawer" swipe-open>
+        <paper-input label="Organization" value="nuxeo"></paper-input>
+        <paper-input label="Request interval" value="10"></paper-input>       
+      </app-drawer>
     `;
   }
 
-  _getOrganization() {
-    return this.shadowRoot.getElementById('inputOrganization').value;
+  _firstRendered() {
+    const authenticator = this.shadowRoot.getElementById('authenticator');
+    const authenticatorDialogs = this.shadowRoot.getElementById('authenticatorDialogs');
+    authenticator.authenticatorDialogs = authenticatorDialogs;
+    authenticatorDialogs.authenticator = authenticator;
   }
 
-  _httpGet(url, callback) {
-    const req = new XMLHttpRequest();
-    req.open('GET', url, true);
-    req.setRequestHeader('Content-type', 'application/json');
-    if (this._auth) {
-      req.setRequestHeader('Authorization', this._auth);
-    }
-    req.onreadystatechange = () => {
-      if (req.readyState === 4 && req.status === 200) {
-        callback(req);
-      }
-    };
-    req.send();
-  }
-
-  _onAuthenticateBasic() {
-    const username = this.shadowRoot.getElementById('inputUsername').value;
-    const password = this.shadowRoot.getElementById('inputPassword').value;
-    const secret = btoa(`${username}:${password}`);
-    this._auth = `Basic ${secret}`;
-  }
-
-  _onAuthenticateToken() {
-    const token = this.shadowRoot.getElementById('inputToken').value;
-    this._auth = `token ${token}`;
-  }
-
-  _onGetUser() {
-    this._httpGet('https://api.github.com/user', req => {
-      this._user = JSON.parse(req.responseText);
-    });
-  }
-
-  _onGetRateLimit() {
-    this._httpGet('https://api.github.com/rate_limit', req => {
-      this._rateLimit = JSON.parse(req.responseText);
-    });
-  }
-
-  _onGetOrganization() {
-    this._httpGet(`https://api.github.com/orgs/${this._getOrganization()}`, req => {
-      this._organization = JSON.parse(req.responseText);
-    });
-  }
-
-  _onGetOrganizationEvents() {
-    this._httpGet(`https://api.github.com/orgs/${this._getOrganization()}/events`, req => {
-      this._organizationEvents = JSON.parse(req.responseText);
-    });
+  _toggleDrawer() {
+    this.shadowRoot.getElementById('drawer').toggle();
   }
 
 }
