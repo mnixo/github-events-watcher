@@ -3,6 +3,7 @@ import '@polymer/paper-button/paper-button';
 import '@polymer/paper-card/paper-card';
 import '@polymer/paper-input/paper-input';
 import '@polymer/paper-styles/paper-styles';
+import './gew-authenticator';
 
 class GEWApp extends LitElement {
   static get properties() {
@@ -53,6 +54,9 @@ class GEWApp extends LitElement {
       <paper-card>
         <h3>GitHub Events Watcher</h3>
       </paper-card>
+      
+      <gew-authenticator></gew-authenticator>
+      
       <paper-card>
         <paper-input id="inputUsername" label="Username"></paper-input>
         <paper-input id="inputPassword" label="Password" type="password"></paper-input>
