@@ -16,7 +16,8 @@
     "@polymer/paper-button": "^3.0.0-pre.21",
     "@polymer/paper-card": "^3.0.0-pre.21",
     "@polymer/paper-dialog": "^3.0.0-pre.21",
-    "@polymer/paper-input": "^3.0.0-pre.21"
+    "@polymer/paper-input": "^3.0.0-pre.21",
+    "@polymer/paper-spinner": "^3.0.0-pre.21"
   },
   "devDependencies": {
     "@webcomponents/webcomponentsjs": "^2.0.0",

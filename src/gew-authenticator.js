@@ -2,16 +2,18 @@ import { LitElement, html } from '@polymer/lit-element';
 import '@polymer/paper-button/paper-button';
 import '@polymer/paper-dialog/paper-dialog';
 import '@polymer/paper-input/paper-input';
+import '@polymer/paper-spinner/paper-spinner';
 
 class GEWAuthenticator extends LitElement {
   static get properties() {
     return {
-
+      _auth: String,
     };
   }
 
   constructor() {
     super();
+    this._auth = null;
   }
 
   _render(props) {
@@ -35,7 +37,7 @@ class GEWAuthenticator extends LitElement {
           background-color: #eee;
         }
         .dialog-content {
-          padding: 0 2em 2em 2em;
+          padding: 2em;
         }
         paper-dialog paper-button {
           margin-top: 1em;
@@ -44,43 +46,115 @@ class GEWAuthenticator extends LitElement {
         paper-button {
           text-transform: none;
           margin: 0;
-        }       
+        }
+        paper-spinner {
+          align-self: center;
+        }
       </style>
       
-      <paper-dialog id="dialogBasic" with-backdrop>
+      <paper-dialog id="basic" with-backdrop>
         <div class="dialog-header">
           <h3>GitHub Authentication</h3>
         </div>
         <div class="dialog-content">
           <paper-input id="inputUsername" label="Username"></paper-input>
           <paper-input id="inputPassword" label="Password" type="password"></paper-input>
-          <paper-button raised dialog-confirm>Authenticate</paper-button>
-          <paper-button raised dialog-confirm on-click="${() => this._openDialogToken()}">
+          <paper-button raised dialog-confirm on-click="${() => this._onBasicConfirm()}">
+            Authenticate
+          </paper-button>
+          <paper-button raised dialog-confirm on-click="${() => this._openDialog('token')}">
             I want to use a Token
           </paper-button>
         </div>
       </paper-dialog>
       
-      <paper-dialog id="dialogToken" with-backdrop>
+      <paper-dialog id="token" with-backdrop>
         <div class="dialog-header">
           <h3>GitHub Token Authentication</h3>
         </div>
         <div class="dialog-content">
           <paper-input id="inputToken" label="Token"></paper-input>
-          <paper-button raised dialog-confirm>Authenticate</paper-button>
+          <paper-button raised dialog-confirm on-click="${() => this._onTokenConfirm()}">
+            Authenticate
+          </paper-button>
         </div>
       </paper-dialog>
       
-      <paper-button raised on-click="${() => this._openDialogBasic()}">Authenticator</paper-buttonraised>
+      <paper-dialog id="progress" modal>
+        <div class="dialog-header">
+          <h3>Authenticating...</h3>
+        </div>
+        <div class="dialog-content">
+          <paper-spinner active></paper-spinner>
+        </div>
+      </paper-dialog>
+      
+      <paper-dialog id="error" with-backdrop>
+        <div class="dialog-header">
+          <h3>Authentication Failed</h3>
+        </div>
+        <div id="errorContent" class="dialog-content"></div>
+      </paper-dialog>
+       
+      <paper-button raised on-click="${() => this._openDialog('basic')}">Authenticator</paper-buttonraised>
     `;
   }
 
-  _openDialogBasic() {
-    this.shadowRoot.getElementById('dialogBasic').open();
+  _openDialog(id) {
+    if (id === 'basic') {
+      this.shadowRoot.getElementById('inputUsername').value = '';
+      this.shadowRoot.getElementById('inputPassword').value = '';
+    } else if (id === 'token') {
+      this.shadowRoot.getElementById('inputToken').value = '';
+    }
+    this.shadowRoot.getElementById(id).open();
   }
 
-  _openDialogToken() {
-    this.shadowRoot.getElementById('dialogToken').open();
+  _onBasicConfirm() {
+    const username = this.shadowRoot.getElementById('inputUsername').value;
+    const password = this.shadowRoot.getElementById('inputPassword').value;
+    const secret = btoa(`${username}:${password}`);
+    this._auth = `Basic ${secret}`;
+    this._testAuth();
+  }
+
+  _onTokenConfirm() {
+    const token = this.shadowRoot.getElementById('inputToken').value;
+    this._auth = `token ${token}`;
+    this._testAuth();
+  }
+
+  _testAuth() {
+    this._openDialog('progress');
+    const onSuccess = () => {
+      this.shadowRoot.getElementById('progress').close();
+    };
+    const onError = req => {
+      this.shadowRoot.getElementById('progress').close();
+      const message = `${req.statusText} (${req.status})\n${JSON.parse(req.response).message}`;
+      this.shadowRoot.getElementById('errorContent').innerText = message;
+      this._openDialog('error');
+    };
+    this._httpGet('https://api.github.com/user', this._auth, onSuccess, onError);
+  }
+
+  _httpGet(url, auth, onSuccess, onError) {
+    const req = new XMLHttpRequest();
+    req.open('GET', url, true);
+    req.setRequestHeader('Content-type', 'application/json');
+    if (auth) {
+      req.setRequestHeader('Authorization', auth);
+    }
+    req.onreadystatechange = () => {
+      if (req.readyState === 4) {
+        if (req.status === 200) {
+          return onSuccess ? onSuccess(req) : null;
+        } else {
+          return onError ? onError(req) : null;
+        }
+      }
+    };
+    req.send();
   }
 
 }
