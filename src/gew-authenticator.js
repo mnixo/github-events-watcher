@@ -45,11 +45,19 @@ class GEWAuthenticator extends LitElement {
     `;
   }
 
+  /**
+   * Occurs when not authenticated and the login button is clicked.
+   * Should clear any previously introduced values and open the basic authentication dialog.
+   */
   _onLogin() {
     this.authenticatorDialogs.clear();
     this.authenticatorDialogs.get('basic').open();
   }
 
+  /**
+   * Occurs when authenticated and the profile button is clicked.
+   * Should open the profile dialog for the authenticated profile.
+   */
   _onViewProfile() {
     this.authenticate(this._secret, () => {
       this.authenticatorDialogs.setProfile(this._user);
@@ -57,13 +65,41 @@ class GEWAuthenticator extends LitElement {
     });
   }
 
+  /**
+   * Given a `user` and a `secret`, stores them and sends a `login` event with these values.
+   * This assumes that the `secret` is valid and that it grants access as `user`.
+   */
+  _saveCredentials(user, secret) {
+    this._user = user;
+    this._secret = secret;
+    this.dispatchEvent(new CustomEvent('login', {
+      detail: {
+        user,
+        secret,
+      },
+    }));
+  }
+
+  /**
+   * Clears the currently stored `user` and `secret` information and sends a `logout` event.
+   */
+  _forgetCredentials() {
+    this._user = null;
+    this._secret = null;
+    this.dispatchEvent(new CustomEvent('logout'));
+  }
+
+  /**
+   * Tests the authentication using the provided `secret`. If the test is successful:
+   * - Stores the `secret` and the `user`.
+   * - If an `onAuthenticationSuccessful` callback is provided, it is executed.
+   */
   authenticate(secret, onAuthenticationSuccessful) {
     const progressDialog = this.authenticatorDialogs.get('progress');
     progressDialog.open();
     const onSuccess = req => {
       progressDialog.close();
-      this._secret = secret;
-      this._user = JSON.parse(req.response);
+      this._saveCredentials(JSON.parse(req.response), secret);
       if (onAuthenticationSuccessful) {
         onAuthenticationSuccessful();
       }
@@ -72,14 +108,13 @@ class GEWAuthenticator extends LitElement {
       progressDialog.close();
       this.authenticatorDialogs.setError(req);
       this.authenticatorDialogs.get('error').open();
-      this.logout();
+      this._forgetCredentials();
     };
     this._httpGet('https://api.github.com/user', secret, onSuccess, onError);
   }
 
-  logout() {
-    this._secret = null;
-    this._user = null;
+  deauthenticate() {
+    this._forgetCredentials();
   }
 
   _httpGet(url, auth, onSuccess, onError) {
