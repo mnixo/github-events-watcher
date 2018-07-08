@@ -20,6 +20,9 @@ class GEWAuthenticatorDialogs extends LitElement {
   _render(props) {
     return html`
       <style>
+        paper-dialog {
+          overflow: auto;
+        }
         h3 {
           margin: 0;
         }
@@ -46,7 +49,7 @@ class GEWAuthenticatorDialogs extends LitElement {
           align-items: center;
         }
         .profile-row iron-icon {
-          margin-right: 1em;
+          margin-right: 0.5em;
         }
         paper-button {
           text-transform: none;
@@ -152,7 +155,7 @@ class GEWAuthenticatorDialogs extends LitElement {
   }
 
   _onLogout() {
-    this.authenticator.logout();
+    this.authenticator.deauthenticate();
   }
 
   _onProfileAvatarLoaded() {

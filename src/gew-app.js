@@ -6,21 +6,24 @@ import { LitElement, html } from '@polymer/lit-element';
 import '@polymer/paper-icon-button/paper-icon-button';
 import '@polymer/paper-input/paper-input';
 import '@polymer/paper-styles/paper-styles';
+import '@polymer/paper-toggle-button/paper-toggle-button';
 import './gew-authenticator';
 import './gew-authenticator-dialogs';
+import './gew-toggle';
 
 class GEWApp extends LitElement {
   static get properties() {
     return {
-
+      _auth: Object,
     };
   }
 
   constructor() {
     super();
+    this._auth = null;
   }
 
-  _render(props) {
+  _render({ _auth }) {
     return html`
       <style>
         :host {
@@ -49,7 +52,11 @@ class GEWApp extends LitElement {
         <app-toolbar>
           <paper-icon-button icon="menu" onclick="${() => this._toggleDrawer()}"></paper-icon-button>
           <div main-title>GitHub Events Watcher</div>
-          <gew-authenticator id="authenticator"></gew-authenticator>
+          <gew-toggle disabled="${!_auth}"></gew-toggle>
+          <gew-authenticator id="authenticator"
+            on-login="${this._onLogin.bind(this)}" 
+            on-logout="${this._onLogout.bind(this)}">
+          </gew-authenticator>
         </app-toolbar>
       </app-header>
       <app-drawer id="drawer" swipe-open>
@@ -70,5 +77,12 @@ class GEWApp extends LitElement {
     this.shadowRoot.getElementById('drawer').toggle();
   }
 
+  _onLogin(e) {
+    this._auth = e.detail;
+  }
+
+  _onLogout() {
+    this._auth = null;
+  }
 }
 window.customElements.define('gew-app', GEWApp);
