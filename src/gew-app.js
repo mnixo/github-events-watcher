@@ -11,6 +11,7 @@ import './gew-authenticator';
 import './gew-authenticator-dialogs';
 import './gew-listing';
 import './gew-toggle';
+import * as http from './http';
 
 class GEWApp extends LitElement {
   static get properties() {
@@ -99,26 +100,7 @@ class GEWApp extends LitElement {
       console.log('error!');
       console.log(req);
     };
-    this._httpGet('https://api.github.com/orgs/nuxeo/events', this._auth, onSuccess, onError);
-  }
-
-  _httpGet(url, auth, onSuccess, onError) {
-    const req = new XMLHttpRequest();
-    req.open('GET', url, true);
-    req.setRequestHeader('Content-type', 'application/json');
-    if (auth) {
-      req.setRequestHeader('Authorization', auth);
-    }
-    req.onreadystatechange = () => {
-      if (req.readyState === 4) {
-        if (req.status === 200) {
-          return onSuccess ? onSuccess(req) : null;
-        } else {
-          return onError ? onError(req) : null;
-        }
-      }
-    };
-    req.send();
+    http.get('https://api.github.com/orgs/nuxeo/events', this._auth, onSuccess, onError);
   }
 }
 window.customElements.define('gew-app', GEWApp);
