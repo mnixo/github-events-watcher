@@ -2,6 +2,7 @@ import '@polymer/iron-icons/iron-icons';
 import { LitElement, html } from '@polymer/lit-element';
 import '@polymer/paper-icon-button/paper-icon-button';
 import '@polymer/paper-tooltip/paper-tooltip';
+import * as http from './http';
 
 class GEWAuthenticator extends LitElement {
   static get properties() {
@@ -110,30 +111,11 @@ class GEWAuthenticator extends LitElement {
       this.authenticatorDialogs.get('error').open();
       this._forgetCredentials();
     };
-    this._httpGet('https://api.github.com/user', secret, onSuccess, onError);
+    http.get('https://api.github.com/user', secret, onSuccess, onError);
   }
 
   deauthenticate() {
     this._forgetCredentials();
-  }
-
-  _httpGet(url, auth, onSuccess, onError) {
-    const req = new XMLHttpRequest();
-    req.open('GET', url, true);
-    req.setRequestHeader('Content-type', 'application/json');
-    if (auth) {
-      req.setRequestHeader('Authorization', auth);
-    }
-    req.onreadystatechange = () => {
-      if (req.readyState === 4) {
-        if (req.status === 200) {
-          return onSuccess ? onSuccess(req) : null;
-        } else {
-          return onError ? onError(req) : null;
-        }
-      }
-    };
-    req.send();
   }
 }
 window.customElements.define('gew-authenticator', GEWAuthenticator);
