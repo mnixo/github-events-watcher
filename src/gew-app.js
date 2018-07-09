@@ -56,7 +56,7 @@ class GEWApp extends LitElement {
         <app-toolbar>
           <paper-icon-button icon="menu" onclick="${() => this._toggleDrawer()}"></paper-icon-button>
           <div main-title>GitHub Events Watcher</div>
-          <gew-toggle disabled="${!_auth}"></gew-toggle>
+          ${this._renderToggle(_auth)}
           <gew-authenticator id="authenticator"
             on-login="${this._onLogin.bind(this)}" 
             on-logout="${this._onLogout.bind(this)}">
@@ -70,6 +70,10 @@ class GEWApp extends LitElement {
       
       <gew-listing events="${_events}"></gew-listing>
     `;
+  }
+
+  _renderToggle(auth) {
+    return auth ? html`<gew-toggle></gew-toggle>` : null;
   }
 
   _firstRendered() {

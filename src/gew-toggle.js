@@ -3,16 +3,15 @@ import { LitElement, html } from '@polymer/lit-element';
 class GewToggle extends LitElement {
   static get properties() {
     return {
-      disabled: Boolean,
+
     };
   }
 
   constructor() {
     super();
-    this.disabled = true;
   }
 
-  _render({ disabled }) {
+  _render(props) {
     return html`
       <style>
         paper-toggle-button {
@@ -24,15 +23,8 @@ class GewToggle extends LitElement {
           --paper-toggle-button-unchecked-ink-color: #aaa;
         }
       </style>
-      ${this._renderToggle(disabled)}
+      <paper-toggle-button></paper-toggle-button>
     `;
-  }
-
-  _renderToggle(disabled) {
-    if (disabled) {
-      return html`<paper-toggle-button disabled="true"></paper-toggle-button>`;
-    }
-    return html`<paper-toggle-button></paper-toggle-button>`;
   }
 }
 window.customElements.define('gew-toggle', GewToggle);
