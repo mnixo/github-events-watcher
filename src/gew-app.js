@@ -104,7 +104,7 @@ class GEWApp extends LitElement {
       console.log('error!');
       console.log(req);
     };
-    http.get('https://api.github.com/orgs/nuxeo/events', this._auth, onSuccess, onError);
+    http.get('https://api.github.com/users/mnixo/events/orgs/nuxeo', this._auth.secret, onSuccess, onError);
   }
 }
 window.customElements.define('gew-app', GEWApp);
