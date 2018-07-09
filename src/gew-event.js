@@ -38,6 +38,9 @@ class GewEvent extends LitElement {
           align-items: center;
           margin: 0.1em 0;
         }
+        .italic {
+          font-style: italic;
+        }
         .mono {
           font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, Courier, monospace;
           font-size: 12px;
@@ -56,12 +59,36 @@ class GewEvent extends LitElement {
         <div class="actor">
           <iron-image src="${event.actor.avatar_url}" width="20" height="20" sizing="contain"></iron-image>
           <div>
-            ${event.actor.login} in <span class="mono">${event.repo.name}</span> 
+            ${event.actor.login} in <span class="mono">${event.repo.name}</span> (${this._renderDate(event.created_at)}) 
           </div>
         </div>
         ${this._renderEventType(event)}
       </paper-card>
     `;
+  }
+
+  _renderDate(dateString) {
+    const delta = new Date() - new Date(dateString);
+    if (delta < 1000) {
+      return html`now`;
+    }
+    let deltaSeconds = delta / 1000;
+    if (deltaSeconds < 60) {
+      deltaSeconds = deltaSeconds.toFixed();
+      return html`${deltaSeconds} second${deltaSeconds > 1 ? 's' : ''} ago`;
+    }
+    let deltaMinutes = deltaSeconds / 60;
+    if (deltaMinutes < 60) {
+      deltaMinutes = deltaMinutes.toFixed();
+      return html`${deltaMinutes} minute${deltaMinutes > 1 ? 's' : ''} ago`;
+    }
+    let deltaHours = deltaMinutes / 60;
+    if (deltaHours < 24) {
+      deltaHours = deltaHours.toFixed();
+      return html`${deltaHours} hour${deltaHours > 1 ? 's' : ''} ago`;
+    }
+    const deltaDays = (deltaHours / 24).toFixed();
+    return html`${deltaDays} day${deltaDays > 1 ? 's' : ''} ago`;
   }
 
   _renderEventType(event) {
@@ -95,12 +122,12 @@ class GewEvent extends LitElement {
     } else if (event.type === 'IssueCommentEvent'){
       return html`
         <div>Comment on <span class="mono bump-left">${payload.issue.title}</span></div>
-        <div>${payload.comment.body}</div>
+        <div class="italic">"${payload.comment.body}"</div>
       `;
     } else if (event.type === 'PullRequestReviewCommentEvent'){
       return html`
         <div>Comment on <span class="mono bump-left">${payload.pull_request.title}</span></div>
-        <div>${payload.comment.body}</div>
+        <div class="italic">"${payload.comment.body}"</div>
       `;
     } else if (event.type === 'PullRequestEvent') {
       return html`
