@@ -9,21 +9,24 @@ import '@polymer/paper-styles/paper-styles';
 import '@polymer/paper-toggle-button/paper-toggle-button';
 import './gew-authenticator';
 import './gew-authenticator-dialogs';
+import './gew-listing';
 import './gew-toggle';
 
 class GEWApp extends LitElement {
   static get properties() {
     return {
       _auth: Object,
+      _events: Array,
     };
   }
 
   constructor() {
     super();
     this._auth = null;
+    this._events = [];
   }
 
-  _render({ _auth }) {
+  _render({ _auth, _events }) {
     return html`
       <style>
         :host {
@@ -63,6 +66,8 @@ class GEWApp extends LitElement {
         <paper-input label="Organization" value="nuxeo"></paper-input>
         <paper-input label="Request interval" value="10"></paper-input>       
       </app-drawer>
+      
+      <gew-listing events="${_events}"></gew-listing>
     `;
   }
 
@@ -79,10 +84,41 @@ class GEWApp extends LitElement {
 
   _onLogin(e) {
     this._auth = e.detail;
+    this._getList();
   }
 
   _onLogout() {
     this._auth = null;
+  }
+
+  _getList() {
+    const onSuccess = req => {
+      this._events = JSON.parse(req.responseText);
+    };
+    const onError = req => {
+      console.log('error!');
+      console.log(req);
+    };
+    this._httpGet('https://api.github.com/orgs/nuxeo/events', this._auth, onSuccess, onError);
+  }
+
+  _httpGet(url, auth, onSuccess, onError) {
+    const req = new XMLHttpRequest();
+    req.open('GET', url, true);
+    req.setRequestHeader('Content-type', 'application/json');
+    if (auth) {
+      req.setRequestHeader('Authorization', auth);
+    }
+    req.onreadystatechange = () => {
+      if (req.readyState === 4) {
+        if (req.status === 200) {
+          return onSuccess ? onSuccess(req) : null;
+        } else {
+          return onError ? onError(req) : null;
+        }
+      }
+    };
+    req.send();
   }
 }
 window.customElements.define('gew-app', GEWApp);
