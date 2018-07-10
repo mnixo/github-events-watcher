@@ -96,9 +96,7 @@ class GewEvent extends LitElement {
     if (event.type === 'PushEvent') {
       const commits = payload.commits.map(commit => {
         return html`
-          <div>
-            -<span class="mono bump-left bump-right">${commit.message}</span>${commit.author.name}
-          </div>
+          <div>${this._handleCommit(commit)}</div>
         `;
       });
       return html`
@@ -140,6 +138,13 @@ class GewEvent extends LitElement {
     } else {
       return event.type;
     }
+  }
+
+  _handleCommit(commit) {
+    const message = commit.message.length > 100 ? `${commit.message.substring(0, 100)}...` : commit.message;
+    return html`
+      -<span class="mono bump-left bump-right">${message}</span>${commit.author.name}
+    `;
   }
 }
 window.customElements.define('gew-event', GewEvent);
