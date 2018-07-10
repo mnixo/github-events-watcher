@@ -23,8 +23,16 @@ class GewToggle extends LitElement {
           --paper-toggle-button-unchecked-ink-color: #aaa;
         }
       </style>
-      <paper-toggle-button></paper-toggle-button>
+      <paper-toggle-button id="toggle" on-change="${this._onChange.bind(this)}"></paper-toggle-button>
     `;
+  }
+
+  _onChange() {
+    this.dispatchEvent(new CustomEvent('toggle', {
+      detail: {
+        checked: this.shadowRoot.getElementById('toggle').checked,
+      }
+    }));
   }
 }
 window.customElements.define('gew-toggle', GewToggle);

@@ -10,6 +10,7 @@ import '@polymer/paper-toggle-button/paper-toggle-button';
 import './gew-authenticator';
 import './gew-authenticator-dialogs';
 import './gew-listing';
+import './gew-scheduler';
 import './gew-toggle';
 import * as http from './http';
 
@@ -18,6 +19,8 @@ class GEWApp extends LitElement {
     return {
       _auth: Object,
       _events: Array,
+      _organization: String,
+      _requestInterval: Number,
     };
   }
 
@@ -25,9 +28,11 @@ class GEWApp extends LitElement {
     super();
     this._auth = null;
     this._events = [];
+    this._organization = 'nuxeo';
+    this._requestInterval = 10;
   }
 
-  _render({ _auth, _events }) {
+  _render({ _auth, _events, _organization, _requestInterval }) {
     return html`
       <style>
         :host {
@@ -50,6 +55,8 @@ class GEWApp extends LitElement {
         }
       </style>
       
+      <gew-scheduler id="scheduler"></gew-scheduler>
+      
       <gew-authenticator-dialogs id="authenticatorDialogs"></gew-authenticator-dialogs>
       
       <app-header reveals>
@@ -64,8 +71,12 @@ class GEWApp extends LitElement {
         </app-toolbar>
       </app-header>
       <app-drawer id="drawer" swipe-open>
-        <paper-input label="Organization" value="nuxeo"></paper-input>
-        <paper-input label="Request interval" value="10"></paper-input>       
+        <paper-input id="inputOrganization" label="Organization" value="${_organization}"
+          on-input="${this._onOrganizationChange.bind(this)}">
+        </paper-input>
+        <paper-input id="inputRequestInterval" label="Request interval" value="${_requestInterval}"
+          on-input="${this._onRequestIntervalChange.bind(this)}">
+        </paper-input>       
       </app-drawer>
       
       <gew-listing events="${_events}"></gew-listing>
@@ -73,7 +84,12 @@ class GEWApp extends LitElement {
   }
 
   _renderToggle(auth) {
-    return auth ? html`<gew-toggle></gew-toggle>` : null;
+    if (!auth) {
+      return null;
+    }
+    return html`
+      <gew-toggle on-toggle="${this._onToggle.bind(this)}"></gew-toggle>
+    `;
   }
 
   _firstRendered() {
@@ -89,11 +105,37 @@ class GEWApp extends LitElement {
 
   _onLogin(e) {
     this._auth = e.detail;
-    this._getList();
   }
 
   _onLogout() {
     this._auth = null;
+    this._events = [];
+  }
+
+  _onToggle(e) {
+    const scheduler = this.shadowRoot.getElementById('scheduler');
+    if (e.detail.checked) {
+      // get the list straight away
+      this._getList();
+      // set a recursive scheduler callback
+      const schedulerCallback = () => {
+        console.log('ping ' + this._requestInterval);
+        this._getList();
+        scheduler.startSchedule(schedulerCallback, this._requestInterval);
+      };
+      // start the scheduler
+      scheduler.startSchedule(schedulerCallback, this._requestInterval);
+    } else {
+      scheduler.stopSchedule();
+    }
+  }
+
+  _onOrganizationChange() {
+    this._organization = this.shadowRoot.getElementById('inputOrganization').value;
+  }
+
+  _onRequestIntervalChange() {
+    this._requestInterval = parseInt(this.shadowRoot.getElementById('inputRequestInterval').value);
   }
 
   _getList() {
@@ -104,7 +146,8 @@ class GEWApp extends LitElement {
       console.log('error!');
       console.log(req);
     };
-    http.get('https://api.github.com/users/mnixo/events/orgs/nuxeo', this._auth.secret, onSuccess, onError);
+    const url = `https://api.github.com/users/${this._auth.user.login}/events/orgs/${this._organization}`;
+    http.get(url, this._auth.secret, onSuccess, onError);
   }
 }
 window.customElements.define('gew-app', GEWApp);
