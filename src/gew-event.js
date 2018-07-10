@@ -133,6 +133,10 @@ class GewEvent extends LitElement {
       return html`
         <div>Pull Request ${payload.action}: <span class="mono bump-left">${payload.pull_request.title}</span></div>
       `;
+    } else if (event.type === 'ForkEvent') {
+      return html`
+        <div>Forked the repository</div>
+      `;
     } else {
       return event.type;
     }
