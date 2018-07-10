@@ -20,12 +20,16 @@
     "@polymer/paper-button": "^3.0.0-pre.21",
     "@polymer/paper-card": "^3.0.0-pre.21",
     "@polymer/paper-dialog": "^3.0.0-pre.21",
+    "@polymer/paper-dropdown-menu": "^3.0.0-pre.21",
     "@polymer/paper-icon-button": "^3.0.0-pre.21",
     "@polymer/paper-input": "^3.0.0-pre.21",
+    "@polymer/paper-item": "^3.0.0-pre.21",
+    "@polymer/paper-listbox": "^3.0.0-pre.21",
     "@polymer/paper-progress": "^3.0.0-pre.21",
     "@polymer/paper-spinner": "^3.0.0-pre.21",
     "@polymer/paper-toggle-button": "^3.0.0-pre.21",
-    "@polymer/paper-tooltip": "^3.0.0-pre.21"
+    "@polymer/paper-tooltip": "^3.0.0-pre.21",
+    "web-animations-js": "^2.3.1"
   },
   "devDependencies": {
     "@webcomponents/webcomponentsjs": "^2.0.0",

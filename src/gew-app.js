@@ -9,6 +9,7 @@ import '@polymer/paper-styles/paper-styles';
 import '@polymer/paper-toggle-button/paper-toggle-button';
 import './gew-authenticator';
 import './gew-authenticator-dialogs';
+import './gew-endpoint-selector';
 import './gew-listing';
 import './gew-scheduler';
 import './gew-toggle';
@@ -48,7 +49,6 @@ class GEWApp extends LitElement {
           width: 100%;
         }
         app-drawer {
-          --app-drawer-width: 400px;
           --app-drawer-content-container: {
             padding: 120px 1em 0 1em; 
           }
@@ -76,7 +76,8 @@ class GEWApp extends LitElement {
         </paper-input>
         <paper-input id="inputRequestInterval" label="Request interval" value="${_requestInterval}"
           on-input="${this._onRequestIntervalChange.bind(this)}">
-        </paper-input>       
+        </paper-input>
+        <gew-endpoint-selector id="endpointSelector"></gew-endpoint-selector>
       </app-drawer>
       
       <gew-listing events="${_events}"></gew-listing>
@@ -146,7 +147,8 @@ class GEWApp extends LitElement {
       console.log('error!');
       console.log(req);
     };
-    const url = `https://api.github.com/users/${this._auth.user.login}/events/orgs/${this._organization}`;
+    const endpointSelector = this.shadowRoot.getElementById('endpointSelector');
+    const url = endpointSelector.getSelectedEndpointUrl(this._organization, this._auth.user);
     http.get(url, this._auth.secret, onSuccess, onError);
   }
 }
