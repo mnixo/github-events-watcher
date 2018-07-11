@@ -173,6 +173,13 @@ class GewEvent extends LitElement {
           Forked the repository
         </div>
       `;
+    } else if (event.type === 'WatchEvent') {
+      return html`
+        <div>
+          <iron-image src="img/octoicons/eye.svg"></iron-image>
+          Watching the repository
+        </div>
+      `;
     } else if (event.type === 'ErrorEvent') {
       return html`
         <div>Error</div>
