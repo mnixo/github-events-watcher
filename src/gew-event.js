@@ -23,7 +23,6 @@ class GewEvent extends LitElement {
       <style>
         paper-card {
           display: flex;
-          flex-direction: column;
           margin-bottom: 0.5em;
           padding: 0.5em;
           z-index: -1;
@@ -33,7 +32,7 @@ class GewEvent extends LitElement {
           border-radius: 4px;
           margin-right: 0.5em;
         }
-        paper-card > div {
+        .container-details > div {
           display: flex;
           align-items: center;
           margin: 0.1em 0;
@@ -57,9 +56,23 @@ class GewEvent extends LitElement {
         }
       </style>
       <paper-card>
-        ${this._renderEventActor(event)}
-        ${this._renderEventType(event)}
+        <div>
+          ${this._renderEventActorAvatar(event)}
+        </div>
+        <div class="container-details">
+          ${this._renderEventActor(event)}
+          ${this._renderEventType(event)}
+        </div>
       </paper-card>
+    `;
+  }
+
+  _renderEventActorAvatar(event) {
+    if (!event.actor) {
+      return null;
+    }
+    return html`
+      <iron-image src="${event.actor.avatar_url}" width="48" height="48" sizing="contain"></iron-image>
     `;
   }
 
@@ -68,11 +81,10 @@ class GewEvent extends LitElement {
       return null;
     }
     return html`
-      <div class="actor">
-        <iron-image src="${event.actor.avatar_url}" width="20" height="20" sizing="contain"></iron-image>
-        <div>
-          ${event.actor.login} in <span class="mono">${event.repo.name}</span> (${this._renderDate(event.created_at)}) 
-        </div>
+      <div>
+        ${event.actor.login} in
+        <span class="mono bump-left bump-right">${event.repo.name}</span>
+        (${this._renderDate(event.created_at)}) 
       </div>
     `;
   }
