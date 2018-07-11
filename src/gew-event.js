@@ -1,7 +1,7 @@
 import '@polymer/iron-image/iron-image';
 import { LitElement, html } from '@polymer/lit-element';
 import '@polymer/paper-card/paper-card';
-import { pluralize, timeAgo } from "./util";
+import { pluralize, replaceGitHubEmoji, timeAgo } from "./util";
 
 class GewEvent extends LitElement {
   static get properties() {
@@ -130,7 +130,7 @@ class GewEvent extends LitElement {
           <iron-image src="img/octoicons/comment.svg"></iron-image>
           Comment on <span class="mono bump-left">${payload.issue.title}</span>
         </div>
-        <div class="italic">"${payload.comment.body}"</div>
+        <div class="italic">"${replaceGitHubEmoji(payload.comment.body)}"</div>
       `;
     } else if (event.type === 'PullRequestReviewCommentEvent'){
       return html`
@@ -138,7 +138,7 @@ class GewEvent extends LitElement {
           <iron-image src="img/octoicons/comment.svg"></iron-image>
           Comment on <span class="mono bump-left">${payload.pull_request.title}</span>
         </div>
-        <div class="italic">"${payload.comment.body}"</div>
+        <div class="italic">"${replaceGitHubEmoji(payload.comment.body)}"</div>
       `;
     } else if (event.type === 'PullRequestEvent') {
       return html`
