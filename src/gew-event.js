@@ -111,39 +111,55 @@ class GewEvent extends LitElement {
       });
       return html`
         <div>
-          Pushed ${payload.commits.length} commit(s) to <span class="mono bump-left">${payload.ref.replace('refs/heads/', '')}</span>
+          <iron-image src="img/octoicons/repo-push.svg"></iron-image>
+          Pushed ${payload.commits.length} commit(s) to 
+          <span class="mono bump-left">${payload.ref.replace('refs/heads/', '')}</span>
         </div>
         ${commits}
       `;
     } else if (event.type === 'CreateEvent') {
       return html`
         <div>
+          <iron-image src="img/octoicons/plus.svg"></iron-image>
           Created <span class="mono bump-left">${payload.ref_type}</span> <span class="mono bump-left">${payload.ref}</span>
         </div>
       `;
     } else if (event.type === 'DeleteEvent') {
       return html`
         <div>
+          <iron-image src="img/octoicons/trashcan.svg"></iron-image>
           Deleted <span class="mono bump-left">${payload.ref_type}</span> <span class="mono bump-left">${payload.ref}</span>
         </div>
       `;
     } else if (event.type === 'IssueCommentEvent'){
       return html`
-        <div>Comment on <span class="mono bump-left">${payload.issue.title}</span></div>
+        <div>
+          <iron-image src="img/octoicons/comment.svg"></iron-image>
+          Comment on <span class="mono bump-left">${payload.issue.title}</span>
+        </div>
         <div class="italic">"${payload.comment.body}"</div>
       `;
     } else if (event.type === 'PullRequestReviewCommentEvent'){
       return html`
-        <div>Comment on <span class="mono bump-left">${payload.pull_request.title}</span></div>
+        <div>
+          <iron-image src="img/octoicons/comment.svg"></iron-image>
+          Comment on <span class="mono bump-left">${payload.pull_request.title}</span>
+        </div>
         <div class="italic">"${payload.comment.body}"</div>
       `;
     } else if (event.type === 'PullRequestEvent') {
       return html`
-        <div>Pull Request ${payload.action}: <span class="mono bump-left">${payload.pull_request.title}</span></div>
+        <div>
+          <iron-image src="img/octoicons/git-pull-request.svg"></iron-image>
+          Pull Request ${payload.action}: <span class="mono bump-left">${payload.pull_request.title}</span>
+        </div>
       `;
     } else if (event.type === 'ForkEvent') {
       return html`
-        <div>Forked the repository</div>
+        <div>
+          <iron-image src="img/octoicons/repo-forked.svg"></iron-image>
+          Forked the repository
+        </div>
       `;
     } else if (event.type === 'ErrorEvent') {
       return html`
@@ -158,7 +174,8 @@ class GewEvent extends LitElement {
   _handleCommit(commit) {
     const message = commit.message.length > 100 ? `${commit.message.substring(0, 100)}...` : commit.message;
     return html`
-      -<span class="mono bump-left bump-right">${message}</span>${commit.author.name}
+      <iron-image src="img/octoicons/git-commit.svg"></iron-image>
+      <span class="mono bump-right">${message}</span>${commit.author.name}
     `;
   }
 }

@@ -8,6 +8,7 @@
     "node_modules/web-animations-js/web-animations-next-lite.min.js"
   ],
   "sources": [
+    "img/octoicons/*",
     "service-worker.html",
     "service-worker.js"
   ],

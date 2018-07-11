@@ -33,6 +33,7 @@
   },
   "devDependencies": {
     "@webcomponents/webcomponentsjs": "^2.0.0",
+    "octicons": "^7.4.0",
     "polymer-cli": "^1.7.7"
   }
 }
