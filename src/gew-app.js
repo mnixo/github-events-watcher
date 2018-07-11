@@ -30,7 +30,7 @@ class GEWApp extends LitElement {
     this._auth = null;
     this._events = [];
     this._organization = 'nuxeo';
-    this._requestInterval = 10;
+    this._requestInterval = 30;
   }
 
   _render({ _auth, _events, _organization, _requestInterval }) {
@@ -63,7 +63,7 @@ class GEWApp extends LitElement {
         <app-toolbar>
           <paper-icon-button icon="menu" onclick="${() => this._toggleDrawer()}"></paper-icon-button>
           <div main-title>GitHub Events Watcher</div>
-          ${this._renderToggle(_auth)}
+          <gew-toggle on-toggle="${this._onToggle.bind(this)}"></gew-toggle>
           <gew-authenticator id="authenticator"
             on-login="${this._onLogin.bind(this)}" 
             on-logout="${this._onLogout.bind(this)}">
@@ -81,15 +81,6 @@ class GEWApp extends LitElement {
       </app-drawer>
       
       <gew-listing events="${_events}"></gew-listing>
-    `;
-  }
-
-  _renderToggle(auth) {
-    if (!auth) {
-      return null;
-    }
-    return html`
-      <gew-toggle on-toggle="${this._onToggle.bind(this)}"></gew-toggle>
     `;
   }
 
@@ -120,7 +111,6 @@ class GEWApp extends LitElement {
       this._getList();
       // set a recursive scheduler callback
       const schedulerCallback = () => {
-        console.log('ping ' + this._requestInterval);
         this._getList();
         scheduler.startSchedule(schedulerCallback, this._requestInterval);
       };
@@ -144,12 +134,13 @@ class GEWApp extends LitElement {
       this._events = JSON.parse(req.responseText);
     };
     const onError = req => {
-      console.log('error!');
-      console.log(req);
+      req.type = 'ErrorEvent';
+      this._events = [ req ];
     };
     const endpointSelector = this.shadowRoot.getElementById('endpointSelector');
-    const url = endpointSelector.getSelectedEndpointUrl(this._organization, this._auth.user);
-    http.get(url, this._auth.secret, onSuccess, onError);
+    const url = endpointSelector.getSelectedEndpointUrl(this._organization, this._auth);
+    const secret = this._auth ? this._auth.secret : null;
+    http.get(url, secret, onSuccess, onError);
   }
 }
 window.customElements.define('gew-app', GEWApp);
