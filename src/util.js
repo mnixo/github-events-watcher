@@ -2,6 +2,16 @@ export const pluralize = (singular, plural, number) => {
   return number === 1 ? singular : plural;
 };
 
+export const replaceGitHubEmoji = message => {
+  while (message.includes(':+1:')) {
+    message = message.replace(':+1:', '👍');
+  }
+  while (message.includes(':-1:')) {
+    message = message.replace(':-1:', '👎');
+  }
+  return message;
+};
+
 export const timeAgo = time => {
   if (time < 1000) {
     return 'just now';
