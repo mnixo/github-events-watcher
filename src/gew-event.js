@@ -1,6 +1,7 @@
 import '@polymer/iron-image/iron-image';
 import { LitElement, html } from '@polymer/lit-element';
 import '@polymer/paper-card/paper-card';
+import { pluralize, timeAgo } from "./util";
 
 class GewEvent extends LitElement {
   static get properties() {
@@ -90,27 +91,7 @@ class GewEvent extends LitElement {
   }
 
   _renderDate(dateString) {
-    const delta = new Date() - new Date(dateString);
-    if (delta < 1000) {
-      return html`now`;
-    }
-    let deltaSeconds = delta / 1000;
-    if (deltaSeconds < 60) {
-      deltaSeconds = deltaSeconds.toFixed();
-      return html`${deltaSeconds} second${deltaSeconds > 1 ? 's' : ''} ago`;
-    }
-    let deltaMinutes = deltaSeconds / 60;
-    if (deltaMinutes < 60) {
-      deltaMinutes = deltaMinutes.toFixed();
-      return html`${deltaMinutes} minute${deltaMinutes > 1 ? 's' : ''} ago`;
-    }
-    let deltaHours = deltaMinutes / 60;
-    if (deltaHours < 24) {
-      deltaHours = deltaHours.toFixed();
-      return html`${deltaHours} hour${deltaHours > 1 ? 's' : ''} ago`;
-    }
-    const deltaDays = (deltaHours / 24).toFixed();
-    return html`${deltaDays} day${deltaDays > 1 ? 's' : ''} ago`;
+    return timeAgo(new Date() - new Date(dateString));
   }
 
   _renderEventType(event) {
@@ -124,7 +105,7 @@ class GewEvent extends LitElement {
       return html`
         <div>
           <iron-image src="img/octoicons/repo-push.svg"></iron-image>
-          Pushed ${payload.commits.length} commit(s) to 
+          Pushed ${payload.commits.length} ${pluralize('commit', 'commits', payload.commits.length)} to 
           <span class="mono bump-left">${payload.ref.replace('refs/heads/', '')}</span>
         </div>
         ${commits}
@@ -191,7 +172,6 @@ class GewEvent extends LitElement {
   }
 
   _handleCommit(commit) {
-    console.log(commit);
     const message = commit.message.length > 100 ? `${commit.message.substring(0, 100)}...` : commit.message;
     const sha = commit.sha.substring(0, 7);
     return html`
