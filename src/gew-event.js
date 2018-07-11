@@ -172,10 +172,13 @@ class GewEvent extends LitElement {
   }
 
   _handleCommit(commit) {
+    console.log(commit);
     const message = commit.message.length > 100 ? `${commit.message.substring(0, 100)}...` : commit.message;
+    const sha = commit.sha.substring(0, 7);
     return html`
       <iron-image src="img/octoicons/git-commit.svg"></iron-image>
-      <span class="mono bump-right">${message}</span>${commit.author.name}
+      <span class="mono bump-right">${sha}</span>
+      <span class="mono bump-right bump-left">${message}</span>${commit.author.name}
     `;
   }
 }
