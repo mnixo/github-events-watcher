@@ -53,8 +53,8 @@ class GewEndpointSelector extends LitElement {
       </style>
       <paper-dropdown-menu label="GitHub API Endpoint" on-selected-item-changed="${this._onSelectedChange.bind(this)}">
         <paper-listbox slot="dropdown-content" selected="0">
-          <paper-item id="organizationPrivate">Private Organization Events</paper-item>
           <paper-item id="organizationPublic">Public Organization Events</paper-item>
+          <paper-item id="organizationPrivate">Private Organization Events</paper-item>
         </paper-listbox>
       </paper-dropdown-menu>
       <div id="urlTail" class="mono"></div>
@@ -71,10 +71,10 @@ class GewEndpointSelector extends LitElement {
     this.shadowRoot.getElementById('urlTail').innerText = this._endpoint.urlTail;
   }
 
-  getSelectedEndpointUrl(org, user) {
+  getSelectedEndpointUrl(org, auth) {
     let tail = this._endpoint.urlTail;
-    tail = tail.replace(':org', org);
-    tail = tail.replace(':user', user.login);
+    tail = org ? tail.replace(':org', org) : tail;
+    tail = auth ? tail.replace(':user', auth.user.login) : tail;
     return GITHUB_API_BASE + tail;
   }
 }

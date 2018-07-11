@@ -47,6 +47,7 @@ class GewEvent extends LitElement {
           border-radius: 2px;
           background-color: #eee;
           padding: 0 0.2em;
+          white-space: pre-wrap;
         }
         .bump-left {
           margin-left: 0.2em;
@@ -56,14 +57,23 @@ class GewEvent extends LitElement {
         }
       </style>
       <paper-card>
-        <div class="actor">
-          <iron-image src="${event.actor.avatar_url}" width="20" height="20" sizing="contain"></iron-image>
-          <div>
-            ${event.actor.login} in <span class="mono">${event.repo.name}</span> (${this._renderDate(event.created_at)}) 
-          </div>
-        </div>
+        ${this._renderEventActor(event)}
         ${this._renderEventType(event)}
       </paper-card>
+    `;
+  }
+
+  _renderEventActor(event) {
+    if (!event.actor) {
+      return null;
+    }
+    return html`
+      <div class="actor">
+        <iron-image src="${event.actor.avatar_url}" width="20" height="20" sizing="contain"></iron-image>
+        <div>
+          ${event.actor.login} in <span class="mono">${event.repo.name}</span> (${this._renderDate(event.created_at)}) 
+        </div>
+      </div>
     `;
   }
 
@@ -134,6 +144,11 @@ class GewEvent extends LitElement {
     } else if (event.type === 'ForkEvent') {
       return html`
         <div>Forked the repository</div>
+      `;
+    } else if (event.type === 'ErrorEvent') {
+      return html`
+        <div>Error</div>
+        <div class="mono">${event.responseText}</div>
       `;
     } else {
       return event.type;
