@@ -1,5 +1,5 @@
 export const pluralize = (singular, plural, number) => {
-  return number === 1 ? singular : plural;
+  return parseInt(number) === 1 ? singular : plural;
 };
 
 export const replaceGitHubEmoji = message => {
