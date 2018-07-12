@@ -52,6 +52,7 @@ class GEWApp extends LitElement {
           --app-drawer-content-container: {
             padding: 120px 1em 0 1em; 
           }
+          z-index: 1;
         }
       </style>
       
