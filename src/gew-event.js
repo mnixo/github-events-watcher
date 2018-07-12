@@ -26,15 +26,23 @@ class GewEvent extends LitElement {
           display: flex;
           margin-bottom: 0.5em;
           padding: 0.5em;
-          z-index: -1;
           font-size: 14px;
         }
         iron-image {
           border-radius: 4px;
           margin-right: 0.5em;
         }
+        a {
+          color: inherit;
+          text-decoration: inherit;
+        }
+        a:hover {
+          color: -webkit-link;
+          text-decoration: underline;
+        }
         .container-details > div {
           display: flex;
+          flex-wrap: wrap;
           align-items: center;
           margin: 0.1em 0;
         }
@@ -73,7 +81,9 @@ class GewEvent extends LitElement {
       return null;
     }
     return html`
-      <iron-image src="${event.actor.avatar_url}" width="48" height="48" sizing="contain"></iron-image>
+      <a href="${this._getActorUrl(event.actor)}" target="_blank">
+        <iron-image src="${event.actor.avatar_url}" width="48" height="48" sizing="contain"></iron-image>
+      </a>
     `;
   }
 
@@ -83,8 +93,13 @@ class GewEvent extends LitElement {
     }
     return html`
       <div>
-        ${event.actor.login} in
-        <span class="mono bump-left bump-right">${event.repo.name}</span>
+        <a href="${this._getActorUrl(event.actor)}" target="_blank" class="bump-right">
+          ${event.actor.login}
+        </a>
+        in
+        <a href="${this._getRepoUrl(event.repo)}" target="_blank" class="bump-left bump-right">
+          <span class="mono">${event.repo.name}</span>
+        </a>
         (${this._renderDate(event.created_at)}) 
       </div>
     `;
@@ -99,22 +114,29 @@ class GewEvent extends LitElement {
     if (event.type === 'PushEvent') {
       const commits = payload.commits.map(commit => {
         return html`
-          <div>${this._handleCommit(commit)}</div>
+          <div>${this._handleCommit(event.repo, commit)}</div>
         `;
       });
+      const branch = payload.ref.replace('refs/heads/', '');
       return html`
         <div>
           <iron-image src="img/octoicons/repo-push.svg"></iron-image>
           Pushed ${payload.commits.length} ${pluralize('commit', 'commits', payload.commits.length)} to 
-          <span class="mono bump-left">${payload.ref.replace('refs/heads/', '')}</span>
+          <a href="${this._getBranchUrl(event.repo, branch)}" target="_blank" class="bump-left">
+            <span class="mono">${branch}</span>
+          </a>
         </div>
         ${commits}
       `;
     } else if (event.type === 'CreateEvent') {
+      // https://developer.github.com/v3/activity/events/types/#createevent
+      // handle each of the 3 types correctly (icons, links, etc)
       return html`
         <div>
           <iron-image src="img/octoicons/${this._getRefTypeIcon(payload.ref_type)}.svg"></iron-image>
-          Created <span class="mono bump-left">${payload.ref_type}</span> <span class="mono bump-left">${payload.ref}</span>
+          Created
+          <span class="mono bump-left">${payload.ref_type}</span>
+          <span class="mono bump-left">${payload.ref}</span>
         </div>
       `;
     } else if (event.type === 'DeleteEvent') {
@@ -128,23 +150,40 @@ class GewEvent extends LitElement {
       return html`
         <div>
           <iron-image src="img/octoicons/comment.svg"></iron-image>
-          Commented on <span class="mono bump-left">${payload.issue.title}</span>
+          Commented on
+          <a href="${payload.issue.html_url}" target="_blank" class="bump-left">
+            <span class="mono">${payload.issue.title}</span>
+          </a>
         </div>
-        <div class="italic">"${replaceGitHubEmoji(payload.comment.body)}"</div>
+        <div class="italic">
+          <a href="${payload.comment.html_url}" target="_blank">
+            "${replaceGitHubEmoji(payload.comment.body)}"
+          </a>
+        </div>
       `;
     } else if (event.type === 'PullRequestReviewCommentEvent'){
       return html`
         <div>
           <iron-image src="img/octoicons/comment.svg"></iron-image>
-          Commented on <span class="mono bump-left">${payload.pull_request.title}</span>
+          Commented on
+          <a href="${payload.pull_request.html_url}" target="_blank" class="bump-left">
+            <span class="mono">${payload.pull_request.title}</span>
+          </a>
         </div>
-        <div class="italic">"${replaceGitHubEmoji(payload.comment.body)}"</div>
+        <div class="italic">
+          <a href="${payload.comment.html_url}" target="_blank">
+            "${replaceGitHubEmoji(payload.comment.body)}"
+          </a>
+        </div>
       `;
     } else if (event.type === 'PullRequestEvent') {
       return html`
         <div>
           <iron-image src="img/octoicons/git-pull-request.svg"></iron-image>
-          Pull Request ${payload.action}: <span class="mono bump-left">${payload.pull_request.title}</span>
+          Pull Request ${payload.action}:
+          <a href="${payload.pull_request.html_url}" target="_blank" class="bump-left">
+            <span class="mono">${payload.pull_request.title}</span>
+          </a>
         </div>
       `;
     } else if (event.type === 'ForkEvent') {
@@ -178,16 +217,22 @@ class GewEvent extends LitElement {
     }
   }
 
-  _handleCommit(commit) {
+  _handleCommit(repo, commit) {
     // split the first line if there is more than one
     let message = commit.message.includes('\n') ? commit.message.split('\n')[0] : commit.message;
     // split the message if it is too long
     message = message.length > 100 ? `${message.substring(0, 100)}...` : message;
     const sha = commit.sha.substring(0, 7);
+    const commitUrl = this._getCommitUrl(repo, commit);
     return html`
       <iron-image src="img/octoicons/git-commit.svg"></iron-image>
-      <span class="mono bump-right">${sha}</span>
-      <span class="mono bump-right bump-left">${message}</span>${commit.author.name}
+      <a href="${commitUrl}" target="_blank" class="bump-right">
+        <span class="mono">${sha}</span>
+      </a>
+      <a href="${commitUrl}" target="_blank" class=" bump-right bump-left">
+        <span class="mono">${message}</span>
+      </a>
+      ${commit.author.name}
     `;
   }
 
@@ -198,6 +243,22 @@ class GewEvent extends LitElement {
       return 'git-branch';
     }
     return 'plus';
+  }
+
+  _getActorUrl(actor) {
+    return `https://github.com/${actor.login}`;
+  }
+
+  _getRepoUrl(repo) {
+    return `https://github.com/${repo.name}`;
+  }
+
+  _getBranchUrl(repo, branch) {
+    return `https://github.com/${repo.name}/tree/${branch}`;
+  }
+
+  _getCommitUrl(repo, commit) {
+    return `https://github.com/${repo.name}/commit/${commit.sha}`;
   }
 }
 window.customElements.define('gew-event', GewEvent);
