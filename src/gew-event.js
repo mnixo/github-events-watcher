@@ -113,7 +113,7 @@ class GewEvent extends LitElement {
     } else if (event.type === 'CreateEvent') {
       return html`
         <div>
-          <iron-image src="img/octoicons/plus.svg"></iron-image>
+          <iron-image src="img/octoicons/${this._getRefTypeIcon(payload.ref_type)}.svg"></iron-image>
           Created <span class="mono bump-left">${payload.ref_type}</span> <span class="mono bump-left">${payload.ref}</span>
         </div>
       `;
@@ -128,7 +128,7 @@ class GewEvent extends LitElement {
       return html`
         <div>
           <iron-image src="img/octoicons/comment.svg"></iron-image>
-          Comment on <span class="mono bump-left">${payload.issue.title}</span>
+          Commented on <span class="mono bump-left">${payload.issue.title}</span>
         </div>
         <div class="italic">"${replaceGitHubEmoji(payload.comment.body)}"</div>
       `;
@@ -136,7 +136,7 @@ class GewEvent extends LitElement {
       return html`
         <div>
           <iron-image src="img/octoicons/comment.svg"></iron-image>
-          Comment on <span class="mono bump-left">${payload.pull_request.title}</span>
+          Commented on <span class="mono bump-left">${payload.pull_request.title}</span>
         </div>
         <div class="italic">"${replaceGitHubEmoji(payload.comment.body)}"</div>
       `;
@@ -161,6 +161,13 @@ class GewEvent extends LitElement {
           Watching the repository
         </div>
       `;
+    } else if (event.type === 'ReleaseEvent') {
+      return html`
+        <div>
+          <iron-image src="img/octoicons/tag.svg"></iron-image>
+          Release <span class="mono bump-left bump-right">${payload.release.tag_name}</span> ${payload.action}
+        </div>
+      `;
     } else if (event.type === 'ErrorEvent') {
       return html`
         <div>Error</div>
@@ -172,13 +179,25 @@ class GewEvent extends LitElement {
   }
 
   _handleCommit(commit) {
-    const message = commit.message.length > 100 ? `${commit.message.substring(0, 100)}...` : commit.message;
+    // split the first line if there is more than one
+    let message = commit.message.includes('\n') ? commit.message.split('\n')[0] : commit.message;
+    // split the message if it is too long
+    message = message.length > 100 ? `${message.substring(0, 100)}...` : message;
     const sha = commit.sha.substring(0, 7);
     return html`
       <iron-image src="img/octoicons/git-commit.svg"></iron-image>
       <span class="mono bump-right">${sha}</span>
       <span class="mono bump-right bump-left">${message}</span>${commit.author.name}
     `;
+  }
+
+  _getRefTypeIcon(refType) {
+    if (refType === 'tag') {
+      return 'tag';
+    } else if (refType === 'branch') {
+      return 'git-branch';
+    }
+    return 'plus';
   }
 }
 window.customElements.define('gew-event', GewEvent);
