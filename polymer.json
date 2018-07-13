@@ -9,6 +9,7 @@
   ],
   "sources": [
     "img/octoicons/*",
+    "analytics.html",
     "service-worker.html",
     "service-worker.js"
   ],

@@ -14,6 +14,7 @@ import './gew-listing';
 import './gew-scheduler';
 import './gew-toggle';
 import * as http from './http';
+import { sendAnalyticsEvent } from "./util";
 
 class GEWApp extends LitElement {
   static get properties() {
@@ -142,6 +143,10 @@ class GEWApp extends LitElement {
     const url = endpointSelector.getSelectedEndpointUrl(this._organization, this._auth);
     const secret = this._auth ? this._auth.secret : null;
     http.get(url, secret, onSuccess, onError);
+    sendAnalyticsEvent('getList', {
+      'organization': this._organization,
+      'requestInterval': this._requestInterval,
+    });
   }
 }
 window.customElements.define('gew-app', GEWApp);

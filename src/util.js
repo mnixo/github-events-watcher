@@ -1,3 +1,5 @@
+/* global gtag */
+
 export const pluralize = (singular, plural, number) => {
   return parseInt(number) === 1 ? singular : plural;
 };
@@ -10,6 +12,12 @@ export const replaceGitHubEmoji = message => {
     message = message.replace(':-1:', '👎');
   }
   return message;
+};
+
+export const sendAnalyticsEvent = (action, details) => {
+  if (typeof gtag !== 'undefined') {
+    gtag('event', action, details);
+  }
 };
 
 export const timeAgo = time => {
