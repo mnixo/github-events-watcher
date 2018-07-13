@@ -1,0 +1,21 @@
+{
+  "short_name": "GH Events Watcher",
+  "name": "GitHub Events Watcher",
+  "icons": [
+    {
+      "src": "img/icon-192.png",
+      "type": "image/png",
+      "sizes": "192x192"
+    },
+    {
+      "src": "img/icon-512.png",
+      "type": "image/png",
+      "sizes": "512x512"
+    }
+  ],
+  "start_url": "/github-events-watcher/",
+  "background_color": "#AAAAAA",
+  "display": "standalone",
+  "scope": "/github-events-watcher/",
+  "theme_color": "#AAAAAA"
+}
