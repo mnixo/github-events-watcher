@@ -161,6 +161,16 @@ class GewEvent extends LitElement {
           </a>
         </div>
       `;
+    } else if (event.type === 'IssuesEvent'){
+      return html`
+        <div>
+          <iron-image src="img/octoicons/issue-opened.svg"></iron-image>
+          Issue ${payload.action}:
+          <a href="${payload.issue.html_url}" target="_blank" class="bump-left">
+            <span class="mono">${payload.issue.title}</span>
+          </a>
+        </div>
+      `;
     } else if (event.type === 'PullRequestReviewCommentEvent'){
       return html`
         <div>
