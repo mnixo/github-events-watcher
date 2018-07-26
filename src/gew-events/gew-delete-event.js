@@ -8,7 +8,8 @@ class GewDeleteEvent extends GewBaseEvent {
     return html`
       <div>
         <iron-image src="img/octoicons/trashcan.svg"></iron-image>
-        Deleted <span class="mono bump-left">${payload.ref_type}</span> <span class="mono bump-left">${payload.ref}</span>
+        Deleted a ${payload.ref_type}
+        <span class="mono bump-left">${payload.ref}</span>
       </div>
     `;
   }

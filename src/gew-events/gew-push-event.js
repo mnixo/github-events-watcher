@@ -4,14 +4,6 @@ import { pluralize } from "../util";
 
 class GewPushEvent extends GewBaseEvent {
 
-  _getBranchUrl(repo, branch) {
-    return `https://github.com/${repo.name}/tree/${branch}`;
-  }
-
-  _getCommitUrl(repo, commit) {
-    return `https://github.com/${repo.name}/commit/${commit.sha}`;
-  }
-
   _handleCommit(repo, commit) {
     // split the first line if there is more than one
     let message = commit.message.includes('\n') ? commit.message.split('\n')[0] : commit.message;
