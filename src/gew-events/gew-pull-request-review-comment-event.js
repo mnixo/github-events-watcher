@@ -14,6 +14,7 @@ class GewPullRequestReviewCommentEvent extends GewBaseEvent {
           <span class="mono">${payload.pull_request.title}</span>
         </a>
       </div>
+      <span class="code">${payload.comment.diff_hunk}</span>
       <div class="italic">
         <a href="${payload.comment.html_url}" target="_blank">
           "${replaceGitHubEmoji(payload.comment.body)}"
