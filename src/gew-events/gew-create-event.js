@@ -18,9 +18,13 @@ class GewCreateEvent extends GewBaseEvent {
     }
     const href = refType === 'branch' ? this._getBranchUrl(event.repo, ref) : this._getTagUrl(event.repo, ref);
     return html`
-      Created a ${refType}
+      Created the ${refType}
       <a  href="${href}" target="_blank">
-        <span class="mono bump-left">${ref}</span>
+        <span class="mono bump-left bump-right">${ref}</span>
+      </a>
+      from
+      <a  href="${this._getBranchUrl(event.repo, event.payload.master_branch)}" target="_blank">
+        <span class="mono bump-left">${event.payload.master_branch}</span>
       </a>
     `;
   }
