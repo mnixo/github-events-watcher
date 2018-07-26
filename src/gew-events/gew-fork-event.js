@@ -7,7 +7,9 @@ class GewForkEvent extends GewBaseEvent {
     return html`
       <div>
         <iron-image src="img/octoicons/repo-forked.svg"></iron-image>
-        Forked the repository
+        <a  href="${event.payload.forkee.html_url}" target="_blank">
+          Forked the repository
+        </a>
       </div>
     `;
   }
