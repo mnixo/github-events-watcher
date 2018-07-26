@@ -26,6 +26,11 @@ export class GewBaseEvent extends LitElement {
           padding: 0.5em;
           font-size: 14px;
         }
+        .container-details {
+          display: flex;
+          flex-direction: column;
+          width: 100%;
+        }
         .container-details > div {
           display: flex;
           flex-wrap: wrap;
@@ -50,6 +55,16 @@ export class GewBaseEvent extends LitElement {
           border-radius: 2px;
           background-color: #eee;
           padding: 0 0.2em;
+          white-space: pre-wrap;
+        }
+        .code {
+          font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, Courier, monospace;
+          font-size: 12px;
+          border-radius: 2px;
+          color: #eee;
+          background-color: #2b2b2b;
+          padding: 0.5em;
+          margin: 0.5em 0;
           white-space: pre-wrap;
         }
         .bump-left {
