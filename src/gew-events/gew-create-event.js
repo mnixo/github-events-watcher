@@ -31,8 +31,6 @@ class GewCreateEvent extends GewBaseEvent {
 
   _renderEventType(event) {
     const payload = event.payload;
-    // https://developer.github.com/v3/activity/events/types/#createevent
-    // handle each of the 3 types correctly (icons, links, etc)
     return html`
       <div>
         <iron-image src="img/octoicons/${this._getRefTypeIcon(payload.ref_type)}.svg"></iron-image>
