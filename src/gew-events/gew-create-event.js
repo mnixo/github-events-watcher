@@ -4,12 +4,25 @@ import { GewBaseEvent } from "./gew-base-event";
 class GewCreateEvent extends GewBaseEvent {
 
   _getRefTypeIcon(refType) {
-    if (refType === 'tag') {
-      return 'tag';
-    } else if (refType === 'branch') {
-      return 'git-branch';
+    // branch > git-branch
+    // repo > repo
+    // tag > tag
+    return refType === 'branch' ? 'git-branch' : refType;
+  }
+
+  _getMessage(event) {
+    const refType = event.payload.ref_type;
+    const ref = event.payload.ref;
+    if (refType === 'repo') {
+      return html`Created the repository.`;
     }
-    return 'plus';
+    const href = refType === 'branch' ? this._getBranchUrl(event.repo, ref) : this._getTagUrl(event.repo, ref);
+    return html`
+      Created a ${refType}
+      <a  href="${href}" target="_blank">
+        <span class="mono bump-left">${ref}</span>
+      </a>
+    `;
   }
 
   _renderEventType(event) {
@@ -19,9 +32,7 @@ class GewCreateEvent extends GewBaseEvent {
     return html`
       <div>
         <iron-image src="img/octoicons/${this._getRefTypeIcon(payload.ref_type)}.svg"></iron-image>
-        Created
-        <span class="mono bump-left">${payload.ref_type}</span>
-        <span class="mono bump-left">${payload.ref}</span>
+        ${this._getMessage(event)}
       </div>
     `;
   }

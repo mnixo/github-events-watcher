@@ -118,5 +118,17 @@ export class GewBaseEvent extends LitElement {
   _getRepoUrl(repo) {
     return `https://github.com/${repo.name}`;
   }
+
+  _getTagUrl(repo, tag) {
+    return `https://github.com/${repo.name}/releases/tag/${tag}`;
+  }
+
+  _getBranchUrl(repo, branch) {
+    return `https://github.com/${repo.name}/tree/${branch}`;
+  }
+
+  _getCommitUrl(repo, commit) {
+    return `https://github.com/${repo.name}/commit/${commit.sha}`;
+  }
 }
 window.customElements.define('gew-base-event', GewBaseEvent);
