@@ -34,7 +34,7 @@ class GewListing extends LitElement {
       return html`
         <gew-event event="${event}"></gew-event>
       `;
-    })
+    });
   }
 }
 window.customElements.define('gew-listing', GewListing);

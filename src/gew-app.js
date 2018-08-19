@@ -9,7 +9,7 @@ import '@polymer/paper-styles/paper-styles';
 import '@polymer/paper-toggle-button/paper-toggle-button';
 import './gew-authenticator';
 import './gew-authenticator-dialogs';
-import './gew-endpoint-selector';
+import './gew-endpoint-configurator';
 import './gew-listing';
 import './gew-scheduler';
 import './gew-toggle';
@@ -73,13 +73,7 @@ class GEWApp extends LitElement {
         </app-toolbar>
       </app-header>
       <app-drawer id="drawer" swipe-open>
-        <paper-input id="inputOrganization" label="Organization" value="${_organization}"
-          on-input="${this._onOrganizationChange.bind(this)}">
-        </paper-input>
-        <paper-input id="inputRequestInterval" label="Request interval" value="${_requestInterval}"
-          on-input="${this._onRequestIntervalChange.bind(this)}">
-        </paper-input>
-        <gew-endpoint-selector id="endpointSelector"></gew-endpoint-selector>
+        <gew-endpoint-configurator></gew-endpoint-configurator>
       </app-drawer>
       
       <gew-listing events="${_events}"></gew-listing>
